@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Lexend", sans-serif;
+
+  --color-surface: #f8f9ff;
+  --color-surface-dim: #cbdbf5;
+  --color-surface-container: #e5eeff;
+  --color-surface-container-low: #eff4ff;
+  --color-surface-container-high: #dce9ff;
+  --color-on-surface: #0b1c30;
+  --color-on-surface-variant: #464651;
+  
+  --color-primary: #15196c;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #2d3282;
+  --color-on-primary-container: #999ff5;
+  
+  --color-secondary: #006c4b;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #64f9bc;
+  --color-on-secondary-container: #00714e;
+  
+  --color-tertiary: #382100;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #563400;
+  --color-on-tertiary-container: #e79400;
+  --color-tertiary-fixed: #ffddb8;
+
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-on-surface font-sans;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold;
+  }
+}

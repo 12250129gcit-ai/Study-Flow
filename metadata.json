@@ -1,0 +1,8 @@
+{
+  "name": "Remix: StudyFlow",
+  "description": "A minimalist, offline-first study companion for deep focus and academic growth.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": []
+}
