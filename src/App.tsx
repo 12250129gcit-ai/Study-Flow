@@ -59,23 +59,11 @@ const INITIAL_USER: UserProfile = {
   onboarded: false
 };
 
-const INITIAL_TASKS: Task[] = [
-// ... rest of the file
-  { id: '1', title: 'Advanced Calculus Quiz', category: 'Mathematics', time: '2:00 PM', durationMins: 45, completed: false, priority: 'high' },
-  { id: '2', title: 'Thesis Bibliography Review', category: 'History', dueDate: 'Tomorrow', durationMins: 90, completed: false, priority: 'medium' },
-  { id: '3', title: 'Biology Lab Report', category: 'Science', dueDate: 'Fri, Oct 12', durationMins: 60, completed: false, priority: 'medium' },
-  { id: '4', title: 'Physics Lab Report Submission', category: 'Physics', durationMins: 30, completed: true, priority: 'low' },
-];
+const INITIAL_TASKS: Task[] = [];
 
-const INITIAL_SESSIONS: StudySession[] = [
-  { id: '1', type: 'focus', subject: 'Mathematics', startTime: '09:00', durationMins: 50, durationSecs: 3000, date: new Date().toISOString().split('T')[0] },
-];
+const INITIAL_SESSIONS: StudySession[] = [];
 
-const INITIAL_NOTES: Note[] = [
-  { id: '1', title: 'Quantum Mechanics Basics', content: 'Study the wave-particle duality and Schrödinger equation fundamentals.', updatedAt: '2h ago', subject: 'Physics' },
-  { id: '2', title: 'Calculus Theorems', content: 'Mean Value Theorem: If f is continuous on [a,b] and differentiable on (a,b)...', updatedAt: '5h ago', subject: 'Mathematics' },
-  { id: '3', title: 'Project Research Ideas', content: '- Impact of AI on education\n- Renewable energy efficiency\n- Mental health in students', updatedAt: 'yesterday', subject: 'General' },
-];
+const INITIAL_NOTES: Note[] = [];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'tasks' | 'study' | 'notes' | 'profile'>('home');
@@ -168,13 +156,13 @@ export default function App() {
       return parsed;
     }
     return {
-      workH: 0, workM: 25, workS: 0,
-      breakH: 0, breakM: 5, breakS: 0,
-      timeLeft: 25 * 60 / 2,
+      workH: '', workM: '', workS: '',
+      breakH: '', breakM: '', breakS: '',
+      timeLeft: 0,
       isActive: false,
-      selectedSubject: 'General',
+      selectedSubject: '',
       stage: 'work-1',
-      breakFraction: 0.5,
+      breakFraction: 1.0,
       lastUpdated: Date.now()
     };
   });
@@ -203,6 +191,20 @@ export default function App() {
     }
     return () => clearInterval(interval);
   }, [timerState.isActive, timerState.timeLeft]);
+
+  // Sync timeLeft when durations change and timer is inactive
+  useEffect(() => {
+    if (!timerState.isActive && timerState.stage === 'work-1') {
+      const wt = (Number(timerState.workH) || 0) * 3600 + (Number(timerState.workM) || 0) * 60 + (Number(timerState.workS) || 0);
+      const bt = (Number(timerState.breakH) || 0) * 3600 + (Number(timerState.breakM) || 0) * 60 + (Number(timerState.breakS) || 0);
+      const effectiveWt = Math.max(wt, 2);
+      const t1 = bt > 0 ? Math.floor(effectiveWt * timerState.breakFraction) : effectiveWt;
+      
+      if (timerState.timeLeft !== t1) {
+        setTimerState(prev => ({ ...prev, timeLeft: t1 }));
+      }
+    }
+  }, [timerState.workH, timerState.workM, timerState.workS, timerState.breakH, timerState.breakM, timerState.breakS, timerState.breakFraction, timerState.isActive, timerState.stage]);
 
   const handleGlobalStageComplete = () => {
     const today = new Date().toISOString().split('T')[0];
@@ -1320,7 +1322,7 @@ function StudyView({
   };
 
   const existingSubjects = Array.from(new Set(sessions.map(s => s.subject)));
-  const defaultSubjects = ['Mathematics', 'Biology', 'History', 'Physics', 'Computer Sc.', 'Chemistry', 'Literature', 'General'];
+  const defaultSubjects: string[] = [];
   const allSuggestedSubjects = Array.from(new Set([...defaultSubjects, ...existingSubjects]));
 
   const handleDeleteSession = (id: string) => {
@@ -1515,7 +1517,7 @@ function StudyView({
                   list="subjects-datalist"
                 />
                 <datalist id="subjects-datalist">
-                  {Array.from(new Set([...Object.keys(subjectGoals), 'General', 'Mathematics', 'Biology', 'History', 'Physics'])).map(s => (
+                  {Array.from(new Set([...Object.keys(subjectGoals)])).map(s => (
                     <option key={s} value={s} />
                   ))}
                 </datalist>
@@ -2095,7 +2097,7 @@ function NotepadView({ notes, setNotes, bumpStreak, sessions, subjectGoals }: { 
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [deletingNoteId, setDeletingNoteId] = useState<string | null>(null);
 
-  const defaultSubjects = ['Mathematics', 'Biology', 'History', 'Physics', 'Computer Sc.', 'Chemistry', 'Literature', 'General'];
+  const defaultSubjects: string[] = [];
   const sessionSubjects = Array.from(new Set(sessions.map(s => s.subject)));
   const goalSubjects = Object.keys(subjectGoals);
   const allSubjects = Array.from(new Set([...defaultSubjects, ...sessionSubjects, ...goalSubjects]));
